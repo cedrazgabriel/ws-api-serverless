@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/functions/hello.ts"],
+  "sourcesContent": ["export async function handler() {\n  return {\n    statusCode: 200,\n    body: JSON.stringify({ message: 'Hello World' }),\n  };\n}\n"],
+  "mappings": "4ZAAA,IAAAA,EAAA,GAAAC,EAAAD,EAAA,aAAAE,IAAA,eAAAC,EAAAH,GAAA,eAAsBE,GAAU,CAC9B,MAAO,CACL,WAAY,IACZ,KAAM,KAAK,UAAU,CAAE,QAAS,aAAc,CAAC,CACjD,CACF",
+  "names": ["hello_exports", "__export", "handler", "__toCommonJS"]
+}

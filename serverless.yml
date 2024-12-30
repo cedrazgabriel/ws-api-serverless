@@ -8,10 +8,22 @@ service: ws-api-serverless
 provider:
   name: aws
   runtime: nodejs20.x
+  architecture: arm64
+  region: sa-east-1
+
+package:
+  individually: true
+
+build:
+  esbuild:
+    bundle: true
+    minify: true
+    exclude:
+      - '@aws-sdk/*'
 
 functions:
   hello:
-    handler: handler.hello
+    handler: src/functions/hello.handler
     events:
       - httpApi:
           path: /
