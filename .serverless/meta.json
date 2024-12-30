@@ -1,0 +1,784 @@
+{
+  "E:\\ws-api-serverless": {
+    "versionSfCore": null,
+    "versionFramework": "4.4.18",
+    "isWithinCompose": false,
+    "isCompose": false,
+    "composeOrgName": null,
+    "composeResolverProviders": {
+      "default-aws-credential-resolver": "<REDACTED>",
+      "sls": {
+        "instance": {
+          "credentials": "<REDACTED>",
+          "serviceConfigFile": {
+            "org": "cedrazorg",
+            "app": "ws-api-serverless",
+            "service": "ws-api-serverless",
+            "provider": {
+              "name": "aws",
+              "runtime": "nodejs20.x",
+              "architecture": "arm64",
+              "region": "sa-east-1",
+              "stage": "dev",
+              "versionFunctions": true,
+              "compiledCloudFormationTemplate": {
+                "AWSTemplateFormatVersion": "2010-09-09",
+                "Description": "The AWS CloudFormation template for this Serverless application",
+                "Resources": {
+                  "HelloLogGroup": {
+                    "Type": "AWS::Logs::LogGroup",
+                    "Properties": {
+                      "LogGroupName": "/aws/lambda/ws-api-serverless-dev-hello"
+                    }
+                  },
+                  "IamRoleLambdaExecution": {
+                    "Type": "AWS::IAM::Role",
+                    "Properties": {
+                      "AssumeRolePolicyDocument": {
+                        "Version": "2012-10-17",
+                        "Statement": [
+                          {
+                            "Effect": "Allow",
+                            "Principal": {
+                              "Service": [
+                                "lambda.amazonaws.com"
+                              ]
+                            },
+                            "Action": [
+                              "sts:AssumeRole"
+                            ]
+                          }
+                        ]
+                      },
+                      "Policies": [
+                        {
+                          "PolicyName": {
+                            "Fn::Join": [
+                              "-",
+                              [
+                                "ws-api-serverless",
+                                "dev",
+                                "lambda"
+                              ]
+                            ]
+                          },
+                          "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                              {
+                                "Effect": "Allow",
+                                "Action": [
+                                  "logs:CreateLogStream",
+                                  "logs:CreateLogGroup",
+                                  "logs:TagResource"
+                                ],
+                                "Resource": [
+                                  {
+                                    "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ws-api-serverless-dev*:*"
+                                  }
+                                ]
+                              },
+                              {
+                                "Effect": "Allow",
+                                "Action": [
+                                  "logs:PutLogEvents"
+                                ],
+                                "Resource": [
+                                  {
+                                    "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ws-api-serverless-dev*:*:*"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "Path": "/",
+                      "RoleName": {
+                        "Fn::Join": [
+                          "-",
+                          [
+                            "ws-api-serverless",
+                            "dev",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            "lambdaRole"
+                          ]
+                        ]
+                      }
+                    }
+                  },
+                  "HelloLambdaFunction": {
+                    "Type": "AWS::Lambda::Function",
+                    "Properties": {
+                      "Code": {
+                        "S3Bucket": "serverless-framework-deployments-sa-east-1-0ff0d760-293b",
+                        "S3Key": "serverless/ws-api-serverless/dev/1735582119018-2024-12-30T18:08:39.018Z/ws-api-serverless-hello.zip"
+                      },
+                      "Handler": "src/functions/hello.handler",
+                      "Runtime": "nodejs20.x",
+                      "FunctionName": "ws-api-serverless-dev-hello",
+                      "MemorySize": 1024,
+                      "Timeout": 6,
+                      "Architectures": [
+                        "arm64"
+                      ],
+                      "Environment": {
+                        "Variables": {
+                          "NODE_OPTIONS": "--enable-source-maps"
+                        }
+                      },
+                      "Role": {
+                        "Fn::GetAtt": [
+                          "IamRoleLambdaExecution",
+                          "Arn"
+                        ]
+                      }
+                    },
+                    "DependsOn": [
+                      "HelloLogGroup"
+                    ]
+                  },
+                  "HelloLambdaVersionkqoLPfDEp0C0dpOJyLGYAOzjT4bWzsXRp1AeuEOHQ": {
+                    "Type": "AWS::Lambda::Version",
+                    "DeletionPolicy": "Retain",
+                    "Properties": {
+                      "FunctionName": {
+                        "Ref": "HelloLambdaFunction"
+                      },
+                      "CodeSha256": "VpSovo+cHe0n0cDTPJpkXwTRD41MDlLUmUunnXylc6M="
+                    }
+                  },
+                  "HttpApi": {
+                    "Type": "AWS::ApiGatewayV2::Api",
+                    "Properties": {
+                      "Name": "dev-ws-api-serverless",
+                      "ProtocolType": "HTTP"
+                    }
+                  },
+                  "HttpApiStage": {
+                    "Type": "AWS::ApiGatewayV2::Stage",
+                    "Properties": {
+                      "ApiId": {
+                        "Ref": "HttpApi"
+                      },
+                      "StageName": "$default",
+                      "AutoDeploy": true,
+                      "DefaultRouteSettings": {
+                        "DetailedMetricsEnabled": false
+                      }
+                    }
+                  },
+                  "HelloLambdaPermissionHttpApi": {
+                    "Type": "AWS::Lambda::Permission",
+                    "Properties": {
+                      "FunctionName": {
+                        "Fn::GetAtt": [
+                          "HelloLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "Action": "lambda:InvokeFunction",
+                      "Principal": "apigateway.amazonaws.com",
+                      "SourceArn": {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":execute-api:",
+                            {
+                              "Ref": "AWS::Region"
+                            },
+                            ":",
+                            {
+                              "Ref": "AWS::AccountId"
+                            },
+                            ":",
+                            {
+                              "Ref": "HttpApi"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      }
+                    }
+                  },
+                  "HttpApiIntegrationHello": {
+                    "Type": "AWS::ApiGatewayV2::Integration",
+                    "Properties": {
+                      "ApiId": {
+                        "Ref": "HttpApi"
+                      },
+                      "IntegrationType": "AWS_PROXY",
+                      "IntegrationUri": {
+                        "Fn::GetAtt": [
+                          "HelloLambdaFunction",
+                          "Arn"
+                        ]
+                      },
+                      "PayloadFormatVersion": "2.0",
+                      "TimeoutInMillis": 30000
+                    }
+                  },
+                  "HttpApiRouteGet": {
+                    "Type": "AWS::ApiGatewayV2::Route",
+                    "Properties": {
+                      "ApiId": {
+                        "Ref": "HttpApi"
+                      },
+                      "RouteKey": "GET /",
+                      "Target": {
+                        "Fn::Join": [
+                          "/",
+                          [
+                            "integrations",
+                            {
+                              "Ref": "HttpApiIntegrationHello"
+                            }
+                          ]
+                        ]
+                      }
+                    },
+                    "DependsOn": "HttpApiIntegrationHello"
+                  }
+                },
+                "Outputs": {
+                  "ServerlessDeploymentBucketName": {
+                    "Value": "serverless-framework-deployments-sa-east-1-0ff0d760-293b",
+                    "Export": {
+                      "Name": "sls-ws-api-serverless-dev-ServerlessDeploymentBucketName"
+                    }
+                  },
+                  "HelloLambdaFunctionQualifiedArn": {
+                    "Description": "Current Lambda function version",
+                    "Value": {
+                      "Ref": "HelloLambdaVersionkqoLPfDEp0C0dpOJyLGYAOzjT4bWzsXRp1AeuEOHQ"
+                    },
+                    "Export": {
+                      "Name": "sls-ws-api-serverless-dev-HelloLambdaFunctionQualifiedArn"
+                    }
+                  },
+                  "HttpApiId": {
+                    "Description": "Id of the HTTP API",
+                    "Value": {
+                      "Ref": "HttpApi"
+                    },
+                    "Export": {
+                      "Name": "sls-ws-api-serverless-dev-HttpApiId"
+                    }
+                  },
+                  "HttpApiUrl": {
+                    "Description": "URL of the HTTP API",
+                    "Value": {
+                      "Fn::Join": [
+                        "",
+                        [
+                          "https://",
+                          {
+                            "Ref": "HttpApi"
+                          },
+                          ".execute-api.",
+                          {
+                            "Ref": "AWS::Region"
+                          },
+                          ".",
+                          {
+                            "Ref": "AWS::URLSuffix"
+                          }
+                        ]
+                      ]
+                    },
+                    "Export": {
+                      "Name": "sls-ws-api-serverless-dev-HttpApiUrl"
+                    }
+                  }
+                }
+              },
+              "vpc": {}
+            },
+            "package": {
+              "individually": true,
+              "artifactsS3KeyDirname": "serverless/ws-api-serverless/dev/code-artifacts",
+              "deploymentBucket": "serverless-framework-deployments-sa-east-1-0ff0d760-293b",
+              "artifactDirectoryName": "serverless/ws-api-serverless/dev/1735582119018-2024-12-30T18:08:39.018Z"
+            },
+            "build": {
+              "esbuild": {
+                "bundle": true,
+                "minify": true,
+                "exclude": [
+                  "@aws-sdk/*"
+                ]
+              }
+            },
+            "functions": {
+              "hello": {
+                "handler": "src/functions/hello.handler",
+                "events": [
+                  {
+                    "httpApi": {
+                      "path": "/",
+                      "method": "get"
+                    },
+                    "resolvedMethod": "GET",
+                    "resolvedPath": "/"
+                  }
+                ],
+                "name": "ws-api-serverless-dev-hello",
+                "environment": {
+                  "NODE_OPTIONS": "--enable-source-maps"
+                },
+                "package": {
+                  "artifact": "E:\\ws-api-serverless\\.serverless\\build\\ws-api-serverless-hello.zip"
+                },
+                "memory": 1024,
+                "timeout": 6,
+                "runtime": "nodejs20.x",
+                "vpc": {},
+                "versionLogicalId": "HelloLambdaVersionkqoLPfDEp0C0dpOJyLGYAOzjT4bWzsXRp1AeuEOHQ"
+              }
+            }
+          },
+          "configFileDirPath": "E:\\ws-api-serverless",
+          "config": {
+            "type": "sls"
+          },
+          "options": {},
+          "stage": "dev",
+          "dashboard": {
+            "aws": {
+              "accessKeyId": "<REDACTED>",
+              "secretAccessKey": "<REDACTED>",
+              "sessionToken": "<REDACTED>",
+              "$source": {
+                "CREDENTIALS_CODE": "<REDACTED>"
+              }
+            },
+            "params": null,
+            "accessKey": "<REDACTED>"
+          },
+          "logger": {
+            "namespace": "s:core:resolver:sls",
+            "prefix": null,
+            "prefixColor": null
+          },
+          "_credentialsPromise": "<REDACTED>"
+        },
+        "resolvers": {}
+      }
+    },
+    "composeServiceName": null,
+    "servicePath": "E:\\ws-api-serverless",
+    "serviceConfigFileName": "serverless.yml",
+    "service": {
+      "org": "cedrazorg",
+      "app": "ws-api-serverless",
+      "service": "ws-api-serverless",
+      "provider": {
+        "name": "aws",
+        "runtime": "nodejs20.x",
+        "architecture": "arm64",
+        "region": "sa-east-1",
+        "stage": "dev",
+        "versionFunctions": true,
+        "compiledCloudFormationTemplate": {
+          "AWSTemplateFormatVersion": "2010-09-09",
+          "Description": "The AWS CloudFormation template for this Serverless application",
+          "Resources": {
+            "HelloLogGroup": {
+              "Type": "AWS::Logs::LogGroup",
+              "Properties": {
+                "LogGroupName": "/aws/lambda/ws-api-serverless-dev-hello"
+              }
+            },
+            "IamRoleLambdaExecution": {
+              "Type": "AWS::IAM::Role",
+              "Properties": {
+                "AssumeRolePolicyDocument": {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                    {
+                      "Effect": "Allow",
+                      "Principal": {
+                        "Service": [
+                          "lambda.amazonaws.com"
+                        ]
+                      },
+                      "Action": [
+                        "sts:AssumeRole"
+                      ]
+                    }
+                  ]
+                },
+                "Policies": [
+                  {
+                    "PolicyName": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          "ws-api-serverless",
+                          "dev",
+                          "lambda"
+                        ]
+                      ]
+                    },
+                    "PolicyDocument": {
+                      "Version": "2012-10-17",
+                      "Statement": [
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:CreateLogStream",
+                            "logs:CreateLogGroup",
+                            "logs:TagResource"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ws-api-serverless-dev*:*"
+                            }
+                          ]
+                        },
+                        {
+                          "Effect": "Allow",
+                          "Action": [
+                            "logs:PutLogEvents"
+                          ],
+                          "Resource": [
+                            {
+                              "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/ws-api-serverless-dev*:*:*"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "Path": "/",
+                "RoleName": {
+                  "Fn::Join": [
+                    "-",
+                    [
+                      "ws-api-serverless",
+                      "dev",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      "lambdaRole"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HelloLambdaFunction": {
+              "Type": "AWS::Lambda::Function",
+              "Properties": {
+                "Code": {
+                  "S3Bucket": "serverless-framework-deployments-sa-east-1-0ff0d760-293b",
+                  "S3Key": "serverless/ws-api-serverless/dev/1735582119018-2024-12-30T18:08:39.018Z/ws-api-serverless-hello.zip"
+                },
+                "Handler": "src/functions/hello.handler",
+                "Runtime": "nodejs20.x",
+                "FunctionName": "ws-api-serverless-dev-hello",
+                "MemorySize": 1024,
+                "Timeout": 6,
+                "Architectures": [
+                  "arm64"
+                ],
+                "Environment": {
+                  "Variables": {
+                    "NODE_OPTIONS": "--enable-source-maps"
+                  }
+                },
+                "Role": {
+                  "Fn::GetAtt": [
+                    "IamRoleLambdaExecution",
+                    "Arn"
+                  ]
+                }
+              },
+              "DependsOn": [
+                "HelloLogGroup"
+              ]
+            },
+            "HelloLambdaVersionkqoLPfDEp0C0dpOJyLGYAOzjT4bWzsXRp1AeuEOHQ": {
+              "Type": "AWS::Lambda::Version",
+              "DeletionPolicy": "Retain",
+              "Properties": {
+                "FunctionName": {
+                  "Ref": "HelloLambdaFunction"
+                },
+                "CodeSha256": "VpSovo+cHe0n0cDTPJpkXwTRD41MDlLUmUunnXylc6M="
+              }
+            },
+            "HttpApi": {
+              "Type": "AWS::ApiGatewayV2::Api",
+              "Properties": {
+                "Name": "dev-ws-api-serverless",
+                "ProtocolType": "HTTP"
+              }
+            },
+            "HttpApiStage": {
+              "Type": "AWS::ApiGatewayV2::Stage",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "StageName": "$default",
+                "AutoDeploy": true,
+                "DefaultRouteSettings": {
+                  "DetailedMetricsEnabled": false
+                }
+              }
+            },
+            "HelloLambdaPermissionHttpApi": {
+              "Type": "AWS::Lambda::Permission",
+              "Properties": {
+                "FunctionName": {
+                  "Fn::GetAtt": [
+                    "HelloLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "apigateway.amazonaws.com",
+                "SourceArn": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition"
+                      },
+                      ":execute-api:",
+                      {
+                        "Ref": "AWS::Region"
+                      },
+                      ":",
+                      {
+                        "Ref": "AWS::AccountId"
+                      },
+                      ":",
+                      {
+                        "Ref": "HttpApi"
+                      },
+                      "/*"
+                    ]
+                  ]
+                }
+              }
+            },
+            "HttpApiIntegrationHello": {
+              "Type": "AWS::ApiGatewayV2::Integration",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "IntegrationType": "AWS_PROXY",
+                "IntegrationUri": {
+                  "Fn::GetAtt": [
+                    "HelloLambdaFunction",
+                    "Arn"
+                  ]
+                },
+                "PayloadFormatVersion": "2.0",
+                "TimeoutInMillis": 30000
+              }
+            },
+            "HttpApiRouteGet": {
+              "Type": "AWS::ApiGatewayV2::Route",
+              "Properties": {
+                "ApiId": {
+                  "Ref": "HttpApi"
+                },
+                "RouteKey": "GET /",
+                "Target": {
+                  "Fn::Join": [
+                    "/",
+                    [
+                      "integrations",
+                      {
+                        "Ref": "HttpApiIntegrationHello"
+                      }
+                    ]
+                  ]
+                }
+              },
+              "DependsOn": "HttpApiIntegrationHello"
+            }
+          },
+          "Outputs": {
+            "ServerlessDeploymentBucketName": {
+              "Value": "serverless-framework-deployments-sa-east-1-0ff0d760-293b",
+              "Export": {
+                "Name": "sls-ws-api-serverless-dev-ServerlessDeploymentBucketName"
+              }
+            },
+            "HelloLambdaFunctionQualifiedArn": {
+              "Description": "Current Lambda function version",
+              "Value": {
+                "Ref": "HelloLambdaVersionkqoLPfDEp0C0dpOJyLGYAOzjT4bWzsXRp1AeuEOHQ"
+              },
+              "Export": {
+                "Name": "sls-ws-api-serverless-dev-HelloLambdaFunctionQualifiedArn"
+              }
+            },
+            "HttpApiId": {
+              "Description": "Id of the HTTP API",
+              "Value": {
+                "Ref": "HttpApi"
+              },
+              "Export": {
+                "Name": "sls-ws-api-serverless-dev-HttpApiId"
+              }
+            },
+            "HttpApiUrl": {
+              "Description": "URL of the HTTP API",
+              "Value": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "https://",
+                    {
+                      "Ref": "HttpApi"
+                    },
+                    ".execute-api.",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ".",
+                    {
+                      "Ref": "AWS::URLSuffix"
+                    }
+                  ]
+                ]
+              },
+              "Export": {
+                "Name": "sls-ws-api-serverless-dev-HttpApiUrl"
+              }
+            }
+          }
+        },
+        "vpc": {}
+      },
+      "package": {
+        "individually": true,
+        "artifactsS3KeyDirname": "serverless/ws-api-serverless/dev/code-artifacts",
+        "deploymentBucket": "serverless-framework-deployments-sa-east-1-0ff0d760-293b",
+        "artifactDirectoryName": "serverless/ws-api-serverless/dev/1735582119018-2024-12-30T18:08:39.018Z"
+      },
+      "build": {
+        "esbuild": {
+          "bundle": true,
+          "minify": true,
+          "exclude": [
+            "@aws-sdk/*"
+          ]
+        }
+      },
+      "functions": {
+        "hello": {
+          "handler": "src/functions/hello.handler",
+          "events": [
+            {
+              "httpApi": {
+                "path": "/",
+                "method": "get"
+              },
+              "resolvedMethod": "GET",
+              "resolvedPath": "/"
+            }
+          ],
+          "name": "ws-api-serverless-dev-hello",
+          "environment": {
+            "NODE_OPTIONS": "--enable-source-maps"
+          },
+          "package": {
+            "artifact": "E:\\ws-api-serverless\\.serverless\\build\\ws-api-serverless-hello.zip"
+          },
+          "memory": 1024,
+          "timeout": 6,
+          "runtime": "nodejs20.x",
+          "vpc": {},
+          "versionLogicalId": "HelloLambdaVersionkqoLPfDEp0C0dpOJyLGYAOzjT4bWzsXRp1AeuEOHQ"
+        }
+      }
+    },
+    "serviceRawFile": "# \"org\" ensures this Service is used with the correct Serverless Framework Access Key.\norg: cedrazorg\n# \"app\" enables Serverless Framework Dashboard features and sharing them with other Services.\napp: ws-api-serverless\n# \"service\" is the name of this project. This will also be added to your AWS resource names.\nservice: ws-api-serverless\n\nprovider:\n  name: aws\n  runtime: nodejs20.x\n  architecture: arm64\n  region: sa-east-1\n\npackage:\n  individually: true\n\nbuild:\n  esbuild:\n    bundle: true\n    minify: true\n    exclude:\n      - '@aws-sdk/*'\n\nfunctions:\n  hello:\n    handler: src/functions/hello.handler\n    events:\n      - httpApi:\n          path: /\n          method: get\n",
+    "command": [
+      "deploy"
+    ],
+    "options": {},
+    "error": null,
+    "params": {},
+    "machineId": "df18d3b99dfdaab57934ef0c8be1913c",
+    "stage": "dev",
+    "accessKeyV2": "<REDACTED>",
+    "accessKeyV1": "<REDACTED>",
+    "orgId": "b0522774-d726-4b67-ad2b-082d64febb35",
+    "orgName": "cedrazorg",
+    "userId": "VQb5bK5wvVNvZFh690",
+    "dashboard": {
+      "isEnabledForService": true,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": {
+        "providers": true,
+        "monitoring": false
+      },
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": "TX5fYBDgvk6WbvY23H",
+      "serviceProvider": {
+        "accessKeyId": "<REDACTED>",
+        "secretAccessKey": "<REDACTED>",
+        "sessionToken": "<REDACTED>",
+        "$source": {
+          "CREDENTIALS_CODE": "<REDACTED>"
+        }
+      },
+      "instanceParameters": null
+    },
+    "userName": "cedrazorg",
+    "subscription": null,
+    "userEmail": "cedrazdev@gmail.com",
+    "serviceProviderAwsRegion": "sa-east-1",
+    "serviceProviderAwsCredentials": "<REDACTED>",
+    "serviceProviderAwsAccountId": "741448921142",
+    "projectType": "traditional",
+    "versionSf": "4.4.18",
+    "serviceProviderAwsCfStackName": "ws-api-serverless-dev",
+    "integrations": {},
+    "serviceUniqueId": "arn:aws:cloudformation:sa-east-1:741448921142:stack/ws-api-serverless-dev/186f3980-c6d9-11ef-80e4-022f9d7a6437",
+    "serviceProviderAwsCfStackId": "arn:aws:cloudformation:sa-east-1:741448921142:stack/ws-api-serverless-dev/186f3980-c6d9-11ef-80e4-022f9d7a6437",
+    "serviceProviderAwsCfStackCreated": "2024-12-30T18:08:39.660Z",
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": "CREATE_COMPLETE",
+    "serviceProviderAwsCfStackOutputs": [
+      {
+        "OutputKey": "HelloLambdaFunctionQualifiedArn",
+        "OutputValue": "arn:aws:lambda:sa-east-1:741448921142:function:ws-api-serverless-dev-hello:1",
+        "Description": "Current Lambda function version",
+        "ExportName": "sls-ws-api-serverless-dev-HelloLambdaFunctionQualifiedArn"
+      },
+      {
+        "OutputKey": "HttpApiId",
+        "OutputValue": "4gdngvul69",
+        "Description": "Id of the HTTP API",
+        "ExportName": "sls-ws-api-serverless-dev-HttpApiId"
+      },
+      {
+        "OutputKey": "ServerlessDeploymentBucketName",
+        "OutputValue": "serverless-framework-deployments-sa-east-1-0ff0d760-293b",
+        "ExportName": "sls-ws-api-serverless-dev-ServerlessDeploymentBucketName"
+      },
+      {
+        "OutputKey": "HttpApiUrl",
+        "OutputValue": "https://4gdngvul69.execute-api.sa-east-1.amazonaws.com",
+        "Description": "URL of the HTTP API",
+        "ExportName": "sls-ws-api-serverless-dev-HttpApiUrl"
+      }
+    ]
+  }
+}
